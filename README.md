@@ -56,7 +56,7 @@ const store = await storeStream(quadStream);
 
 // load the ldes store
 const extractor = new Extractor(store);
-// create the snapshot at a given time
+// create the extract at a given time
 const extraction = await extractor.create({
     startdate: new Date("2020-10-04T12:00:00Z"),
     enddate: new Date("2020-10-07T12:00:00Z"),
@@ -86,13 +86,13 @@ _:n3-1 <https://www.w3.org/2002/07/owl#versionInfo> "v0.0.2" .
 _:n3-1 <http://www.w3.org/2000/01/rdf-schema#label> "A v0.0.2" .
 ```
 
-## Creating a snapshot using streams
+## Creating a extraction using streams
 
 ```javascript
 const ExtractorTransform = require("@treecg/ExtractorTransform").ExtractorTransform;
 const Readable = require("stream").Readable
 
-// Note: uses the store defined in the first option of creating a snapshot
+// Note: uses the store defined in the first option of creating a extraction
 const members = store.getObjects(null, 'https://w3id.org/tree#member', null)
 const memberStream = new Readable({
     objectMode: true,
@@ -159,6 +159,6 @@ done
 ```
 ## Feedback and questions
 
-Do not hesitate to [report a bug](https://github.com/TREEcg/LDES-Snapshot/issues).
+Do not hesitate to [report a bug](https://github.com/lars-vc/LDES-Extractor/issues).
 
 Further questions can also be asked to [Wout Slabbinck](mailto:wout.slabbinck@ugent.be) (developer and maintainer of the [Snapshot repository](https://github.com/TREEcg/LDES-Snapshot) of which this repository is based).
