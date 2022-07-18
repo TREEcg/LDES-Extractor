@@ -86,13 +86,13 @@ _:n3-1 <https://www.w3.org/2002/07/owl#versionInfo> "v0.0.2" .
 _:n3-1 <http://www.w3.org/2000/01/rdf-schema#label> "A v0.0.2" .
 ```
 
-## Creating a extraction using streams
+## Creating an extraction using streams
 
 ```javascript
 const ExtractorTransform = require("@treecg/ExtractorTransform").ExtractorTransform;
 const Readable = require("stream").Readable
 
-// Note: uses the store defined in the first option of creating a extraction
+// Note: uses the store defined in the first option of creating an extraction
 const members = store.getObjects(null, 'https://w3id.org/tree#member', null)
 const memberStream = new Readable({
     objectMode: true,
