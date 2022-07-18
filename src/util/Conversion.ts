@@ -9,6 +9,7 @@ import {ParseOptions} from "rdf-parse/lib/RdfParser";
 import {Readable} from "stream";
 import {TREE} from "./Vocabularies";
 import namedNode = DataFactory.namedNode;
+import {Member} from '@treecg/types'
 
 const rdfParser = require("rdf-parse").default;
 const storeStream = require("rdf-store-stream").storeStream;

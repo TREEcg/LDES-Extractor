@@ -1,3 +1,3 @@
-export {Snapshot} from "./src/Snapshot";
-export {SnapshotTransform} from "./src/SnapshotTransform"
-export {extractSnapshotOptions} from "./src/util/SnapshotUtil"
+export {Extractor} from "./src/Extractor";
+export {ExtractorTransform} from "./src/ExtractorTransform"
+// export {IExtractionOptions} from "./src/util/ExtractorUtil"
