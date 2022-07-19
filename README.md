@@ -4,7 +4,7 @@ This package facilitates creating a(n) **timeframe/extract** of a **versioned** 
 
 ### 🔧 Configuring the extraction
 
-Configuration for creating a extraction is done by giving an `options` object (which has the [`IExtractOptions`](https://github.com/lars-vc/LDES-Extractor/blob/root/src/ExtractorTransform.ts) interface ).
+Configuration for creating a extraction is done by giving an `options` object (which has the [`IExtractorOptions`](https://github.com/lars-vc/LDES-Extractor/blob/root/src/ExtractorTransform.ts) interface ).
 
 This object has the following parameters:
 
@@ -93,7 +93,7 @@ You can also get the metadata with `Extractor.getMetadata()`
 const metadataStore = extractor.getMetadata()
 console.log(metadataStore.getQuads())
 ```
-```json
+```javascript
       [
         Quad {
           id: '',
