@@ -65,7 +65,7 @@ const extraction = await extractor.create({
 })
 ```
 
-When converting the members back to string, the following output is achieved
+When converting the members to strings, the following output is achieved
 
 ```javascript
 const Writer = require("n3").Writer
@@ -85,6 +85,38 @@ _:n3-1 <http://purl.org/dc/terms/isVersionOf> <A> .
 _:n3-1 <http://purl.org/dc/terms/created> "2020-10-06T13:00:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
 _:n3-1 <https://www.w3.org/2002/07/owl#versionInfo> "v0.0.2" .
 _:n3-1 <http://www.w3.org/2000/01/rdf-schema#label> "A v0.0.2" .
+```
+
+You can also get the metadata with `Extractor.getMetadata()`
+
+```javascript
+const metadataStore = extractor.getMetadata()
+console.log(metadataStore.getQuads())
+```
+```json
+      [
+        Quad {
+          id: '',
+          _subject: NamedNode { id: 'http://example.org/extractor' },
+          _predicate: NamedNode { id: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' },
+          _object: NamedNode { id: 'https://w3id.org/ldes#EventStream' },
+          _graph: DefaultGraph { id: '' }
+        },
+        Quad {
+          id: '',
+          _subject: NamedNode { id: 'http://example.org/extractor' },
+          _predicate: NamedNode { id: 'https://w3id.org/ldes#versionOfPath' },
+          _object: NamedNode { id: 'http://purl.org/dc/terms/isVersionOf' },
+          _graph: DefaultGraph { id: '' }
+        },
+        Quad {
+          id: '',
+          _subject: NamedNode { id: 'http://example.org/extractor' },
+          _predicate: NamedNode { id: 'https://w3id.org/ldes#timestampPath' },
+          _object: NamedNode { id: 'http://purl.org/dc/terms/created' },
+          _graph: DefaultGraph { id: '' }
+        }
+      ]
 ```
 
 ## Creating an extraction using streams
