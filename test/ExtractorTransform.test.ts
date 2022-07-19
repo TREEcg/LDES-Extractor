@@ -2,7 +2,7 @@ import {memberStreamtoStore, storeAsMemberStream, storeToString, turtleStringToS
 import {Readable} from "stream";
 import {IExtractorOptions, ExtractorTransform} from "../src/ExtractorTransform";
 import {extractExtractorOptions} from "../src/util/ExtractorUtil";
-import {DCT, LDES, RDF, TREE} from "../src/util/Vocabularies";
+import {DCT, LDES, RDF} from "../src/util/Vocabularies";
 import {DataFactory, Literal, Store} from "n3";
 import {dateToLiteral, extractDateFromLiteral} from "../src/util/TimestampUtil";
 import quad = DataFactory.quad;

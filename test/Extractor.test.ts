@@ -47,7 +47,7 @@ ex:resource1v1
         }
     })
 
-    it('a extractor as defined by the spec on an LDES with blank node members', async () => {
+    it('an extractor as defined by the spec on an LDES with blank node members', async () => {
         const ldes = `
     @prefix dct: <http://purl.org/dc/terms/> .
     @prefix ldes: <https://w3id.org/ldes#> .
@@ -145,41 +145,9 @@ ex:resource1v1
         await extractorExample.create(extractorOptions)
         const extractorStore = extractorExample.getMetadata()
         const extractorIdentifier = extractorOptions.extractorIdentifier!
-        const versionObjectIdentifier = 'http://example.org/resource1v1'
 
         expect(extractorStore.getQuads(extractorIdentifier, RDF.type, LDES.EventStream, null).length).toBe(1)
         expect(extractorStore.getQuads(extractorIdentifier, LDES.versionOfPath, extractorOptions.versionOfPath!, null).length).toBe(1)
         expect(extractorStore.getQuads(extractorIdentifier, LDES.timestampPath, extractorOptions.timestampPath!, null).length).toBe(1)
     })
-
-    // it("generated using a custom identifier for the new tree:collection at current time.", async () => {
-    //     const extractorIdentifier = 'https://extractor.ldes/'
-    //     extractorOptions.extractorIdentifier = extractorIdentifier
-    //     const extractorMemberlist = await extractorExample.create(extractorOptions)
-    //     const extractorStore = new Store()
-    //     for (const member of extractorMemberlist) {
-    //         extractorStore.addQuads(member.quads)
-    //     }
-
-    //     expect(extractorStore.getQuads(extractorIdentifier, RDF.type, LDES.EventStream, null).length).toBe(1)
-    //     expect(extractorStore.getQuads(extractorIdentifier, LDES.versionOfPath, extractorOptions.versionOfPath!, null).length).toBe(1)
-    //     expect(extractorStore.getQuads(extractorIdentifier, LDES.timestampPath, extractorOptions.timestampPath!, null).length).toBe(1)
-    // })
-
-    // it("generated using default values for extractorIdentifier, timestampPath and versionOfPath", async () => {
-    //     const extractorMemberlist = await extractorExample.create({
-    //         startDate: new Date(),
-    //         endDate: new Date(),
-    //         ldesIdentifier: extractorOptions.ldesIdentifier
-    //     })
-    //     const extractorStore = new Store()
-    //     for (const member of extractorMemberlist) {
-    //         extractorStore.addQuads(member.quads)
-    //     }
-    //     const extractorIdentifier = 'http://example.org/extractor'
-
-    //     expect(extractorStore.getQuads(extractorIdentifier, RDF.type, LDES.EventStream, null).length).toBe(1)
-    //     expect(extractorStore.getQuads(extractorIdentifier, LDES.versionOfPath, extractorOptions.versionOfPath!, null).length).toBe(1)
-    //     expect(extractorStore.getQuads(extractorIdentifier, LDES.timestampPath, extractorOptions.timestampPath!, null).length).toBe(1)
-    // })
 })

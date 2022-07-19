@@ -97,7 +97,7 @@ ex:ES a ldes:EventStream;
         })
 
     })
-    describe("for creating the metadata of a Extractor", () => {
+    describe("for creating the metadata of an Extractor", () => {
         it("errors when no version path is given.", () => {
             const extractorOptions = extractExtractorOptions(store, ldesIdentifier)
 
