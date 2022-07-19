@@ -10,7 +10,8 @@ This object has the following parameters:
 
 | parameter name       | default value                 | description                                                  |
 | -------------------- | ----------------------------- | ------------------------------------------------------------ |
-| `startdate`          |                               | A JavaScript [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date) object; the extraction will be created until this timestamp |
+| `startdate`          |                               | A JavaScript [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date) object; the extraction will be created starting from this timestamp (always **required**)|
+| `enddate`          |                               | A JavaScript [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date) object; the extraction will be created until this timestamp (always **required**)|
 | `extractIdentifier`  | `http://example.org/extract`  | The identifier of the extraction                               |
 | `ldesIdentifier`     |                               | The identifier of the LDES of which you want to create an extraction from (always **required**) |
 | `versionOfPath`      |                               | The `ldes:versionOfPath` of the LDES (which is **required** in the Transform) |

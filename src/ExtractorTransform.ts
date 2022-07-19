@@ -16,13 +16,12 @@ import namedNode = DataFactory.namedNode;
 import quad = DataFactory.quad;
 
 export interface IExtractorOptions {
-    startdate: Date;
-    enddate: Date;
+    startDate: Date; // start date of extract
+    endDate: Date; // end date of extract
     extractorIdentifier?: string;
     ldesIdentifier: string;
     versionOfPath?: string;
     timestampPath?: string;
-    materialized?: boolean;
 }
 
 export class ExtractorTransform extends Transform {
@@ -33,16 +32,15 @@ export class ExtractorTransform extends Transform {
     // a map that has as key the version identifier and as a value the time of the current saved (in transformedMap)
     // transformed version of that version object
 
-    private readonly startdate: Date;
-    private readonly enddate: Date;
+    private readonly startDate: Date;
+    private readonly endDate: Date;
     private readonly extractorIdentifier: string;
     private readonly ldesIdentifier: string;
     private readonly versionOfPath: string;
     private readonly timestampPath: string;
-    private readonly materialized: boolean;
 
     private emitedMetadata: boolean;
-    private metadataStore: Store;
+    metadataStore: Store;
 
     public constructor(options: IExtractorOptions) {
         super({objectMode: true, highWaterMark: 1000});
@@ -50,23 +48,21 @@ export class ExtractorTransform extends Transform {
         if (!options.timestampPath) throw new Error("No timestampPath was given in options")
         this.transformedMap = new Map<string, Array<Array<Quad>>>();
 
-        this.startdate = options.startdate;
-        this.enddate = options.enddate;
+        this.startDate = options.startDate;
+        this.endDate = options.endDate;
         this.extractorIdentifier = options.extractorIdentifier ? options.extractorIdentifier : `${options.ldesIdentifier}Extractor`;
         this.ldesIdentifier = options.ldesIdentifier;
         this.versionOfPath = options.versionOfPath;
         this.timestampPath = options.timestampPath;
-        this.materialized = options.materialized ? options.materialized : false;
 
         // create metadata for the extractor
         this.metadataStore = createExtractorMetadata({
-            startdate: this.startdate,
-            enddate: this.enddate,
+            startDate: this.startDate,
+            endDate: this.endDate,
             extractorIdentifier: this.extractorIdentifier,
             ldesIdentifier: this.ldesIdentifier,
             versionOfPath: this.versionOfPath,
             timestampPath: this.timestampPath,
-            materialized: this.materialized
         })
         this.emitedMetadata = false;
 
@@ -112,46 +108,18 @@ export class ExtractorTransform extends Transform {
         if (this.transformedMap.has(versionObjectID)) {
             const memberTime = this.extractDate(member)
             // dateTime must be between the given dates
-            if (this.startdate <= memberTime && memberTime <= this.enddate) {
-                this.transformedMap.get(versionObjectID)?.push(this.transform(member))
+            if (this.startDate <= memberTime && memberTime <= this.endDate) {
+                this.transformedMap.get(versionObjectID)?.push(member.quads)
             }
         } else {
             //first time member
-            const transformed = this.transform(member)
+            const transformed = member.quads
             const memberTime = this.extractDate(member)
 
-            if (this.startdate <= memberTime && memberTime <= this.enddate) {
+            if (this.startDate <= memberTime && memberTime <= this.endDate) {
                 this.transformedMap.set(versionObjectID, [transformed])
             }
         }
-    }
-
-    private transform(member: Member): Quad[] {
-        const transformedTriples: Quad[] = []
-
-        if (this.materialized) {
-            const materializedQuads = materialize(member.quads, {
-                versionOfProperty: namedNode(this.versionOfPath),
-                timestampProperty: namedNode(this.timestampPath)
-            });
-            // code below here is to transform quads to triples
-            for (const q of materializedQuads) {
-                if (q.predicate.value === this.timestampPath) {
-                    // have version object id as indication for the update
-                    transformedTriples.push(quad(namedNode(this.extractVersionId(member)), q.predicate, q.object))
-                } else {
-                    // note: ugly fix to undefined problem, copying all other triples
-                    if (q.subject) {
-                        transformedTriples.push(quad(q.subject, q.predicate, q.object));
-                    } else {
-                        transformedTriples.push(quad(namedNode(q.graph.value), q.predicate, q.object));
-                    }
-                }
-            }
-        } else {
-            transformedTriples.push(...member.quads)
-        }
-        return transformedTriples
     }
 
     // note: only handles xsd:dateTime

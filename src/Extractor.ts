@@ -1,7 +1,7 @@
 import {Store} from "n3";
-import {retrieveTimestampProperty, retrieveVersionOfProperty} from "./util/ExtractorUtil";
+import {retrieveTimestampProperty, createExtractorMetadata, retrieveVersionOfProperty} from "./util/ExtractorUtil";
 import {IExtractorOptions, ExtractorTransform} from "./ExtractorTransform";
-import {memberStreamtoList, storeAsMemberStream} from "./util/Conversion";
+import {memberStreamtoList, memberStreamtoStore, storeAsMemberStream} from "./util/Conversion";
 import {Member} from '@treecg/types'
 
 /***************************************
@@ -12,9 +12,11 @@ import {Member} from '@treecg/types'
  *****************************************/
 export class Extractor {
     private baseStore: Store;
+    private metadataStore?: Store;
 
     constructor(store: Store) {
         this.baseStore = store;
+        this.metadataStore = undefined;
     }
 
     /**
@@ -34,9 +36,20 @@ export class Extractor {
         const extractorTransformer = new ExtractorTransform(options);
         const transformationOutput = memberStream.pipe(extractorTransformer)
         const memberlist = await memberStreamtoList(transformationOutput)
+        this.metadataStore = extractorTransformer.metadataStore;
 
         return memberlist
     }
 
+    getMetadata(): Store {
+        if (this.metadataStore === undefined) {
+            throw new Error("Can't get metadata before running create");
+        }
+        return this.metadataStore
+    }
+
+    createNewMetadata(options: IExtractorOptions): Store {
+        return createExtractorMetadata(options)
+    }
 }
 

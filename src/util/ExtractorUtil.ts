@@ -1,7 +1,6 @@
-import {DataFactory, Quad_Object, Store} from "n3";
+import {DataFactory, Store} from "n3";
 import {NamedNode} from "@rdfjs/types";
-import {LDES, RDF, TREE} from "./Vocabularies";
-import {dateToLiteral} from "./TimestampUtil";
+import {LDES, RDF} from "./Vocabularies";
 import {IExtractorOptions} from "../ExtractorTransform";
 import namedNode = DataFactory.namedNode;
 import quad = DataFactory.quad;
@@ -22,20 +21,13 @@ export function createExtractorMetadata(options: IExtractorOptions): Store {
 
     const store = new Store()
     let extractorIdentifier: NamedNode = namedNode(options.extractorIdentifier)
-
-    if (options.materialized) {
-        store.add(quad(extractorIdentifier, namedNode(RDF.type), namedNode(TREE.Collection)))
-        store.add(quad(extractorIdentifier, namedNode(LDES.versionMaterializationOf), namedNode(options.ldesIdentifier)))
-        store.add(quad(extractorIdentifier, namedNode(LDES.versionMaterializationUntil), dateToLiteral(options.enddate)))
-    } else {
-        if (!options.versionOfPath) throw new Error("No versionOfPath was given in options")
-        if (!options.timestampPath) throw new Error("No timestampPath was given in options")
-        store.add(quad(extractorIdentifier, namedNode(RDF.type), namedNode(LDES.EventStream)))
-        store.add(quad(extractorIdentifier, namedNode(LDES.versionOfPath), namedNode(options.versionOfPath)))
-        store.add(quad(extractorIdentifier, namedNode(LDES.timestampPath), namedNode(options.timestampPath)))
-        // todo: maybe add a reference to the original LDES? e.g. predicate: ldes:isExtractorOf
-        //  on top of that: also add the time of the ldes. e.g. predicate: ldes:extractorAt
-    }
+    if (!options.versionOfPath) throw new Error("No versionOfPath was given in options")
+    if (!options.timestampPath) throw new Error("No timestampPath was given in options")
+    store.add(quad(extractorIdentifier, namedNode(RDF.type), namedNode(LDES.EventStream)))
+    store.add(quad(extractorIdentifier, namedNode(LDES.versionOfPath), namedNode(options.versionOfPath)))
+    store.add(quad(extractorIdentifier, namedNode(LDES.timestampPath), namedNode(options.timestampPath)))
+    // todo: maybe add a reference to the original LDES? e.g. predicate: ldes:isExtractorOf
+    //  on top of that: also add the time of the ldes. e.g. predicate: ldes:extractorAt
     return store
 }
 
@@ -69,6 +61,17 @@ export function retrieveTimestampProperty(store: Store, ldesIdentifier: string):
         throw Error(`Found ${timestampProperties.length} timestampProperties for ${ldesIdentifier}, only expected one`)
     }
     return timestampProperties[0].id
+}
+
+
+export function extractExtractorOptions(store: Store, ldesIdentifier: string): IExtractorOptions {
+    return {
+        ldesIdentifier: ldesIdentifier,
+        timestampPath: retrieveTimestampProperty(store, ldesIdentifier),
+        versionOfPath: retrieveVersionOfProperty(store, ldesIdentifier),
+        startDate: new Date(),
+        endDate: new Date()
+    }
 }
 
 export function isMember(data: any): boolean {
