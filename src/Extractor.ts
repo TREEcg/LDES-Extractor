@@ -41,6 +41,7 @@ export class Extractor {
         return memberlist
     }
 
+    // get metadata based of created memberlist
     getMetadata(): Store {
         if (this.metadataStore === undefined) {
             throw new Error("Can't get metadata before running create");
@@ -48,6 +49,7 @@ export class Extractor {
         return this.metadataStore
     }
 
+    // create new metadata based on IExtractorOptions
     createNewMetadata(options: IExtractorOptions): Store {
         return createExtractorMetadata(options)
     }
