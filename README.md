@@ -94,29 +94,29 @@ const metadataStore = extractor.getMetadata()
 console.log(metadataStore.getQuads())
 ```
 ```javascript
-      [
-        Quad {
-          id: '',
-          _subject: NamedNode { id: 'http://example.org/extractor' },
-          _predicate: NamedNode { id: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' },
-          _object: NamedNode { id: 'https://w3id.org/ldes#EventStream' },
-          _graph: DefaultGraph { id: '' }
-        },
-        Quad {
-          id: '',
-          _subject: NamedNode { id: 'http://example.org/extractor' },
-          _predicate: NamedNode { id: 'https://w3id.org/ldes#versionOfPath' },
-          _object: NamedNode { id: 'http://purl.org/dc/terms/isVersionOf' },
-          _graph: DefaultGraph { id: '' }
-        },
-        Quad {
-          id: '',
-          _subject: NamedNode { id: 'http://example.org/extractor' },
-          _predicate: NamedNode { id: 'https://w3id.org/ldes#timestampPath' },
-          _object: NamedNode { id: 'http://purl.org/dc/terms/created' },
-          _graph: DefaultGraph { id: '' }
-        }
-      ]
+[
+  Quad {
+    id: '',
+    _subject: NamedNode { id: 'http://example.org/extractor' },
+    _predicate: NamedNode { id: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' },
+    _object: NamedNode { id: 'https://w3id.org/ldes#EventStream' },
+    _graph: DefaultGraph { id: '' }
+  },
+  Quad {
+    id: '',
+    _subject: NamedNode { id: 'http://example.org/extractor' },
+    _predicate: NamedNode { id: 'https://w3id.org/ldes#versionOfPath' },
+    _object: NamedNode { id: 'http://purl.org/dc/terms/isVersionOf' },
+    _graph: DefaultGraph { id: '' }
+  },
+  Quad {
+    id: '',
+    _subject: NamedNode { id: 'http://example.org/extractor' },
+    _predicate: NamedNode { id: 'https://w3id.org/ldes#timestampPath' },
+    _object: NamedNode { id: 'http://purl.org/dc/terms/created' },
+    _graph: DefaultGraph { id: '' }
+  }
+]
 ```
 
 ## Creating an extraction using streams
@@ -154,17 +154,17 @@ const Writer = require("n3").Writer
 const writer = new Writer();
 
 memberStreamTransformed.on('metadata', quads => {
-console.log('metadata')
-console.log(writer.quadsToString(quads))
+    console.log('metadata')
+    console.log(writer.quadsToString(quads))
 })
 
 memberStreamTransformed.on('data', ({id, quads}) => {
-console.log(`member: ${id.value}`)
-console.log(writer.quadsToString(quads))
+    console.log(`member: ${id.value}`)
+    console.log(writer.quadsToString(quads))
 })
 
 memberStreamTransformed.on('end', () => {
-console.log('done')
+    console.log('done')
 })
 ```
 
