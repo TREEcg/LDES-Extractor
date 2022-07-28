@@ -8,7 +8,7 @@ import log from "loglevel";
 import prefix from "loglevel-plugin-prefix";
 
 export class Logger {
-    private readonly logger;
+    private readonly logger: log.Logger;
 
     constructor(loggable: Instance | string, level?: string | undefined) {
         const label = typeof loggable === 'string' ? loggable : loggable.constructor.name;
@@ -60,5 +60,5 @@ function isLogLevel(value: string): boolean {
 }
 
 interface Instance {
-    constructor: { name: string };
+    constructor: {name: string};
 }
