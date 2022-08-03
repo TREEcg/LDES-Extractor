@@ -1,6 +1,6 @@
 {
     "name": "@treecg/ldes-extractor",
-    "version": "0.0.4",
+    "version": "0.0.1",
     "description": "Create an extract of a version materialized LDES ",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -11,9 +11,9 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/lars-vc/LDES-Extractor.git"
+        "url": "git+https://github.com/treecg/LDES-Extractor.git"
     },
-    "homepage": "https://github.com/lars-vc/LDES-Extractor#readme",
+    "homepage": "https://github.com/treecg/LDES-Extractor#readme",
     "files": [
         "dist"
     ],
@@ -22,7 +22,11 @@
         "LDES",
         "Linked Data"
     ],
-    "author": "Lars Van Cauter <larsvancauter@gmail.com>",
+    "author": "Wout Slabbinck <wout.slabbinck@ugent.be",
+    "contributors": [
+        "Wout Slabbinck <wout.slabbinck@ugent.be",
+        "Lars Van Cauter <larsvancauter@gmail.com>"
+    ],
     "license": "ISC",
     "dependencies": {
         "@treecg/version-materialize-rdf.js": "^0.0.2",

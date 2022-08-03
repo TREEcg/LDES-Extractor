@@ -3,7 +3,6 @@ import {Extractor} from "../src/Extractor";
 import {Literal, NamedNode, Quad, Store} from "n3";
 import {IExtractorOptions} from "../src/ExtractorTransform";
 import {DCT, LDES, RDF} from "../src/util/Vocabularies";
-import {extractDateFromLiteral} from "../src/util/TimestampUtil";
 
 describe("An Extract", () => {
     const ldesExample = `

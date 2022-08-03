@@ -40,7 +40,7 @@ export class ExtractorTransform extends Transform {
     private readonly timestampPath: string;
 
     private emitedMetadata: boolean;
-    metadataStore: Store;
+    private readonly _metadataStore: Store;
 
     public constructor(options: IExtractorOptions) {
         super({objectMode: true, highWaterMark: 1000});
@@ -56,7 +56,7 @@ export class ExtractorTransform extends Transform {
         this.timestampPath = options.timestampPath;
 
         // create metadata for the extractor
-        this.metadataStore = createExtractorMetadata({
+        this._metadataStore = createExtractorMetadata({
             startDate: this.startDate,
             endDate: this.endDate,
             extractorIdentifier: this.extractorIdentifier,
@@ -71,7 +71,7 @@ export class ExtractorTransform extends Transform {
     public _transform(chunk: any, _enc: any, done: () => void) {
         // called each member
         if (!this.emitedMetadata) {
-            this.emit('metadata', this.metadataStore.getQuads(null, null, null, null))
+            this.emit('metadata', this._metadataStore.getQuads(null, null, null, null))
             this.emitedMetadata = true
         }
 
@@ -122,6 +122,9 @@ export class ExtractorTransform extends Transform {
         }
     }
 
+    get metadataStore(): Store {
+        return this._metadataStore;
+    }
     // note: only handles xsd:dateTime
     private extractDate(member: Member): Date {
         const store = new Store(member.quads)

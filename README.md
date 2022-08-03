@@ -1,8 +1,32 @@
 # Linked Data Event Stream extraction package
 
-This package facilitates creating a(n) **timeframe/extract** of a **versioned** Linked Data Event Stream ([LDES](https://semiceu.github.io/LinkedDataEventStreams/)) and is based on the [snapshot package](https://github.com/TREEcg/LDES-Snapshot)
+This package facilitates creating an **extraction** of a **versioned** Linked Data Event Stream ([LDES](https://semiceu.github.io/LinkedDataEventStreams/)) and is based on the [snapshot package](https://github.com/TREEcg/LDES-Snapshot).
 
-### 🔧 Configuring the extraction
+## What is an extraction
+
+An extraction of an LDES between **time `t1`** and **`t2`** for **Version Identifier `ID`** is a [collection](https://treecg.github.io/specification) of members with given `ID` where its timestamp $t \in [t1,t2]$.
+
+It is also possible for an extraction to not have a **Version Identifier**. In this case, the extraction consists of the collection of all members with timestamp $t \in [t1,t2]$.-
+
+## How to create an extraction
+
+
+First, you have to install the package.
+
+```bash
+npm install @treecg/ldes-extractor
+```
+
+To create an extraction of an LDES, there are two options.
+
+The first option is to create an extraction on a N3 Store.  This way of creating an extraction is straightforward. Load the LDES in a Store and then create the extraction. As simple as that! 
+However, there is a downside: This approach will only work for an LDES  that can be completely be loaded into memory. Which means it only works for small LDESs.
+
+The second option is to create an extraction streamingwise using a [Transform](https://nodejs.org/api/stream.html#class-streamtransform). 
+As input a stream of [members](https://github.com/TREEcg/types/blob/main/lib/Member.ts) is required. This stream is then piped through the transformer which  will, when the stream stops, emit a stream of members. 
+While working with streams might be a little more difficult, it allows  to create an extraction of a bigger LDESs as an LDES does not have to be loaded in memory.
+
+### 🔧 Configuring the extractor
 
 Configuration for creating a extraction is done by giving an `options` object (which has the [`IExtractorOptions`](https://github.com/lars-vc/LDES-Extractor/blob/root/src/ExtractorTransform.ts) interface ).
 
@@ -10,19 +34,20 @@ This object has the following parameters:
 
 | parameter name       | default value                 | description                                                  |
 | -------------------- | ----------------------------- | ------------------------------------------------------------ |
-| `startdate`          |                               | A JavaScript [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date) object; the extraction will be created starting from this timestamp (always **required**)|
-| `enddate`          |                               | A JavaScript [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date) object; the extraction will be created until this timestamp (always **required**)|
-| `extractIdentifier`  | `http://example.org/extract`  | The identifier of the extraction                               |
+| `startdate`          | `new Date(0)` | A JavaScript [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date) object; the extraction will be created starting from this timestamp |
+| `enddate`          | `new Date()` | A JavaScript [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date) object; the extraction will be created until this timestamp |
+| `versionIdentifier` | `undefined`                  | *(Optional)* A `string`; the extraction will only contain members with this Version Identifier |
+| `extractIdentifier`  | `http://example.org/extract`  | The identifier of the extraction Collection |
 | `ldesIdentifier`     |                               | The identifier of the LDES of which you want to create an extraction from (always **required**) |
 | `versionOfPath`      |                               | The `ldes:versionOfPath` of the LDES (which is **required** in the Transform) |
 | `timeStampPath`      |                               | The `ldes:timestampPath` of the LDES (which is **required** in the Transform) |
 
-## Creating an extract using an N3 Store
+## Creating an extraction using an N3 Store
 
 Below is an example of how to use this package. As LDES, the example from [version materialization](https://semiceu.github.io/LinkedDataEventStreams/#version-materializations) in the LDES specification is used.
 
 ```javascript
-const Extractor = require("@treecg/Extractor").Extractor //currently not on npm yet
+const Extractor = require("@treecg/Extractor").Extractor
 const rdfParser = require("rdf-parse").default;
 const storeStream = require("rdf-store-stream").storeStream;
 const streamifyString = require('streamify-string');
@@ -65,7 +90,7 @@ const extraction = await extractor.create({
 })
 ```
 
-When converting the members to strings, the following output is achieved
+When converting the members to strings, the following output is achieved 
 
 ```javascript
 const Writer = require("n3").Writer
