@@ -28,7 +28,7 @@ While working with streams might be a little more difficult, it allows  to creat
 
 ### 🔧 Configuring the extractor
 
-Configuration for creating a extraction is done by giving an `options` object (which has the [`IExtractorOptions`](https://github.com/lars-vc/LDES-Extractor/blob/root/src/ExtractorTransform.ts) interface ).
+Configuration for creating a extraction is done by giving an `options` object (which has the [`IExtractorOptions`](https://github.com/TREEcg/LDES-Extractor/blob/root/src/ExtractorTransform.ts) interface ).
 
 This object has the following parameters:
 
@@ -47,7 +47,7 @@ This object has the following parameters:
 Below is an example of how to use this package. As LDES, the example from [version materialization](https://semiceu.github.io/LinkedDataEventStreams/#version-materializations) in the LDES specification is used.
 
 ```javascript
-const Extractor = require("@treecg/Extractor").Extractor
+const Extractor = require("@treecg/ldes-extractor").Extractor
 const rdfParser = require("rdf-parse").default;
 const storeStream = require("rdf-store-stream").storeStream;
 const streamifyString = require('streamify-string');
@@ -84,8 +84,6 @@ const store = await storeStream(quadStream);
 const extractor = new Extractor(store);
 // create the extract at a given time
 const extraction = await extractor.create({
-    startdate: new Date("2020-10-04T12:00:00Z"),
-    enddate: new Date("2020-10-07T12:00:00Z"),
     ldesIdentifier: "http://example.org/ES1"
 })
 ```
@@ -116,38 +114,19 @@ You can also get the metadata with `Extractor.getMetadata()`
 
 ```javascript
 const metadataStore = extractor.getMetadata()
-console.log(metadataStore.getQuads())
+console.log(writer.quadsToString(metadataStore.getQuads()))
 ```
-```javascript
-[
-  Quad {
-    id: '',
-    _subject: NamedNode { id: 'http://example.org/extractor' },
-    _predicate: NamedNode { id: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' },
-    _object: NamedNode { id: 'https://w3id.org/ldes#EventStream' },
-    _graph: DefaultGraph { id: '' }
-  },
-  Quad {
-    id: '',
-    _subject: NamedNode { id: 'http://example.org/extractor' },
-    _predicate: NamedNode { id: 'https://w3id.org/ldes#versionOfPath' },
-    _object: NamedNode { id: 'http://purl.org/dc/terms/isVersionOf' },
-    _graph: DefaultGraph { id: '' }
-  },
-  Quad {
-    id: '',
-    _subject: NamedNode { id: 'http://example.org/extractor' },
-    _predicate: NamedNode { id: 'https://w3id.org/ldes#timestampPath' },
-    _object: NamedNode { id: 'http://purl.org/dc/terms/created' },
-    _graph: DefaultGraph { id: '' }
-  }
-]
+
+```turtle
+<http://example.org/extractor> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/tree#Collection> .
+<http://example.org/extractor> <https://w3id.org/ldes#versionOfPath> <http://purl.org/dc/terms/isVersionOf> .
+<http://example.org/extractor> <https://w3id.org/ldes#timestampPath> <http://purl.org/dc/terms/created> .
 ```
 
 ## Creating an extraction using streams
 
 ```javascript
-const ExtractorTransform = require("@treecg/ExtractorTransform").ExtractorTransform;
+const ExtractorTransform = require("@treecg/ldes-extractor").ExtractorTransform;
 const Readable = require("stream").Readable
 
 // Note: uses the store defined in the first option of creating an extraction
@@ -166,8 +145,6 @@ const memberStream = new Readable({
 })
 
 const extractionOptions = {
-    startdate: new Date("2020-10-05T10:19:55Z"),
-    enddate: new Date("2020-10-07T09:19:55Z"),
     ldesIdentifier: "http://example.org/ES1",
     versionOfPath: "http://purl.org/dc/terms/isVersionOf",
     timestampPath: "http://purl.org/dc/terms/created",
@@ -197,7 +174,7 @@ Which will output the following
 
 ```bash
 metadata
-<http://example.org/ES1Extractor> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/ldes#EventStream> .
+<http://example.org/ES1Extractor> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/tree#Collection> .
 <http://example.org/ES1Extractor> <https://w3id.org/ldes#versionOfPath> <http://purl.org/dc/terms/isVersionOf> .
 <http://example.org/ES1Extractor> <https://w3id.org/ldes#timestampPath> <http://purl.org/dc/terms/created> .
 
@@ -217,6 +194,6 @@ done
 ```
 ## Feedback and questions
 
-Do not hesitate to [report a bug](https://github.com/lars-vc/LDES-Extractor/issues).
+Do not hesitate to [report a bug](https://github.com/TREEcg/LDES-Extractor/issues).
 
-Further questions can also be asked to [Wout Slabbinck](mailto:wout.slabbinck@ugent.be) (developer and maintainer of the [Snapshot repository](https://github.com/TREEcg/LDES-Snapshot) of which this repository is based).
+Further questions can also be asked to [Wout Slabbinck](mailto:wout.slabbinck@ugent.be) (developer and maintainer of this repository).
