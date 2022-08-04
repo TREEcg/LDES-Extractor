@@ -1,6 +1,6 @@
 import {DataFactory, Store} from "n3";
 import {NamedNode} from "@rdfjs/types";
-import {LDES, RDF} from "./Vocabularies";
+import {LDES, RDF, TREE} from "./Vocabularies";
 import {IExtractorOptions} from "../ExtractorTransform";
 import namedNode = DataFactory.namedNode;
 import quad = DataFactory.quad;
@@ -17,13 +17,13 @@ import quad = DataFactory.quad;
  * @return {Store}
  */
 export function createExtractorMetadata(options: IExtractorOptions): Store {
-    options.extractorIdentifier = options.extractorIdentifier ? options.extractorIdentifier : `${options.ldesIdentifier}Extractor`;
+    options.extractorIdentifier = options.extractorIdentifier ?? 'http://example.org/extractor';
 
     const store = new Store()
     let extractorIdentifier: NamedNode = namedNode(options.extractorIdentifier)
     if (!options.versionOfPath) throw new Error("No versionOfPath was given in options")
     if (!options.timestampPath) throw new Error("No timestampPath was given in options")
-    store.add(quad(extractorIdentifier, namedNode(RDF.type), namedNode(LDES.EventStream)))
+    store.add(quad(extractorIdentifier, namedNode(RDF.type), namedNode(TREE.Collection)))
     store.add(quad(extractorIdentifier, namedNode(LDES.versionOfPath), namedNode(options.versionOfPath)))
     store.add(quad(extractorIdentifier, namedNode(LDES.timestampPath), namedNode(options.timestampPath)))
     // todo: maybe add a reference to the original LDES? e.g. predicate: ldes:isExtractorOf
@@ -69,7 +69,7 @@ export function extractExtractorOptions(store: Store, ldesIdentifier: string): I
         ldesIdentifier: ldesIdentifier,
         timestampPath: retrieveTimestampProperty(store, ldesIdentifier),
         versionOfPath: retrieveVersionOfProperty(store, ldesIdentifier),
-        startDate: new Date(),
+        startDate: new Date(0),
         endDate: new Date()
     }
 }

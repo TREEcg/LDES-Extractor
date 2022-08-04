@@ -1,4 +1,4 @@
-import {Store} from "n3";
+import {extractListOptions, Store} from "n3";
 import {retrieveTimestampProperty, createExtractorMetadata, retrieveVersionOfProperty} from "./util/ExtractorUtil";
 import {IExtractorOptions, ExtractorTransform} from "./ExtractorTransform";
 import {memberStreamtoList, memberStreamtoStore, storeAsMemberStream} from "./util/Conversion";
@@ -6,9 +6,9 @@ import {Member} from '@treecg/types'
 
 /***************************************
  * Title: Extractor
- * Description: Class to create an extraction of an LDES within two timestamps (only works for small LDESes)
+ * Description: Class to create an extraction of an LDES within two timestamps (only works for small LDESes).
  * Author: Wout Slabbinck (wout.slabbinck@ugent.be) & Lars Van Cauter
- * Created on 03/03/2022
+ * Created on 15/07/2022
  *****************************************/
 export class Extractor {
     private readonly baseStore: Store;
@@ -28,10 +28,12 @@ export class Extractor {
      * @return {Promise<Member[]>}
      */
     public async create(options: IExtractorOptions): Promise<Member[]> {
-        options.extractorIdentifier = options.extractorIdentifier ?? 'http://example.org/extractor';
+
+        options.extractorIdentifier = options.extractorIdentifier ?? 'http://example.org/extractor' ;
         options.timestampPath = options.timestampPath ?? retrieveTimestampProperty(this.baseStore, options.ldesIdentifier)
         options.versionOfPath = options.versionOfPath ?? retrieveVersionOfProperty(this.baseStore, options.ldesIdentifier)
 
+        // Note: might take members from different LDESs, maybe in future give LDES identifier as well.
         const memberStream = storeAsMemberStream(this.baseStore)
         const extractorTransformer = new ExtractorTransform(options);
         const transformationOutput = memberStream.pipe(extractorTransformer)
@@ -46,11 +48,6 @@ export class Extractor {
             throw new Error("Can't get metadata before running create");
         }
         return this.metadataStore
-    }
-// TODO: remove -> can be done with the util
-    // create new metadata based on IExtractorOptions
-    public createNewMetadata(options: IExtractorOptions): Store {
-        return createExtractorMetadata(options)
     }
 }
 

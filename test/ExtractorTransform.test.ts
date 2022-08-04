@@ -1,8 +1,8 @@
 import {memberStreamtoStore, storeAsMemberStream, storeToString, turtleStringToStore} from "../src/util/Conversion";
 import {Readable} from "stream";
 import {IExtractorOptions, ExtractorTransform} from "../src/ExtractorTransform";
-import {extractExtractorOptions} from "../src/util/ExtractorUtil";
-import {DCT, LDES, RDF} from "../src/util/Vocabularies";
+import {extractExtractorOptions, retrieveTimestampProperty, retrieveVersionOfProperty} from "../src/util/ExtractorUtil";
+import {DCT, LDES, RDF, TREE} from "../src/util/Vocabularies";
 import {DataFactory, Literal, Store} from "n3";
 import {dateToLiteral, extractDateFromLiteral} from "../src/util/TimestampUtil";
 import quad = DataFactory.quad;
@@ -19,8 +19,7 @@ describe("A ExtractorTransform", () => {
     let store: Store
     let memberStream: Readable
     let extractorOptions: IExtractorOptions
-    beforeAll(async () => {
-        const ldes = `
+    const ldes = `
 @prefix dct: <http://purl.org/dc/terms/> .
 @prefix ldes: <https://w3id.org/ldes#> .
 @prefix tree: <https://w3id.org/tree#> .
@@ -42,13 +41,12 @@ ex:resource1v1
     dct:issued "2021-12-15T12:00:00.000Z"^^xsd:dateTime;
     dct:title "Title has been updated once".
 `
+    beforeEach(async () => {
         store = await turtleStringToStore(ldes)
         extractorOptions = extractExtractorOptions(store, ldesIdentifier)
         extractorOptions.startDate = startDate
         extractorOptions.endDate = endDate
         extractorOptions.extractorIdentifier = extractorIdentifier
-    })
-    beforeEach(() => {
         memberStream = storeAsMemberStream(store)
     })
 
@@ -83,7 +81,7 @@ ex:resource1v1
                 try {
                     expect(quads).toBeInstanceOf(Array)
                     const metadataStore = new Store(quads)
-                    expect(metadataStore.getQuads(extractorIdentifier, RDF.type, LDES.EventStream, null).length).toBe(1)
+                    expect(metadataStore.getQuads(extractorIdentifier, RDF.type, TREE.Collection, null).length).toBe(1)
                     expect(metadataStore.getQuads(extractorIdentifier, LDES.versionOfPath, extractorOptions.versionOfPath!, null).length).toBe(1)
                     expect(metadataStore.getQuads(extractorIdentifier, LDES.timestampPath, extractorOptions.timestampPath!, null).length).toBe(1)
                 } catch (e) {
@@ -236,5 +234,34 @@ ex:resource1v1
         const transformedStore = await memberStreamtoStore(memberStreamTransformed)
         console.log(storeToString(transformedStore))
         console.log(transformedStore.countQuads(null, null, null, null))
+    })
+
+    describe('when passing a Version Identifier in the options', () => {
+        it('gives only the Version Identifier triples.', async () => {
+            const options : IExtractorOptions = {
+                ldesIdentifier: ldesIdentifier,
+                timestampPath: retrieveTimestampProperty(store, ldesIdentifier),
+                versionIdentifier: "http://example.org/resource1",
+                versionOfPath: retrieveVersionOfProperty(store, ldesIdentifier),
+            }
+            const extractorTransformer = new ExtractorTransform(options)
+            const memberStreamTransformed = memberStream.pipe(extractorTransformer)
+            const transformedStore = await memberStreamtoStore(memberStreamTransformed)
+            expect(transformedStore.getQuads(null, options.versionOfPath!, options.versionIdentifier!,null)).toHaveLength(2)
+
+        });
+
+        it('gives nothing when there are no such Version Identifier triples.', async () => {
+            const options : IExtractorOptions = {
+                ldesIdentifier: ldesIdentifier,
+                timestampPath: retrieveTimestampProperty(store, ldesIdentifier),
+                versionIdentifier: "http://example.org/resource2",
+                versionOfPath: retrieveVersionOfProperty(store, ldesIdentifier),
+            }
+            const extractorTransformer = new ExtractorTransform(options)
+            const memberStreamTransformed = memberStream.pipe(extractorTransformer)
+            const transformedStore = await memberStreamtoStore(memberStreamTransformed)
+            expect(transformedStore.getQuads(null, options.versionOfPath!, options.versionIdentifier!,null)).toHaveLength(0)
+        });
     })
 })

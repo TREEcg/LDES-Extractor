@@ -2,9 +2,9 @@ import {turtleStringToStore} from "../src/util/Conversion";
 import {Extractor} from "../src/Extractor";
 import {Literal, NamedNode, Quad, Store} from "n3";
 import {IExtractorOptions} from "../src/ExtractorTransform";
-import {DCT, LDES, RDF} from "../src/util/Vocabularies";
+import {DCT, LDES, RDF, TREE} from "../src/util/Vocabularies";
 
-describe("An Extract", () => {
+describe("An Extractor", () => {
     const ldesExample = `
 @prefix dct: <http://purl.org/dc/terms/> .
 @prefix ldes: <https://w3id.org/ldes#> .
@@ -33,9 +33,9 @@ ex:resource1v1
 
     beforeAll(async () => {
         store = await turtleStringToStore(ldesExample)
-        extractorExample = new Extractor(store)
     })
     beforeEach(async () => {
+        extractorExample = new Extractor(store)
         extractorOptions = {
             startDate: new Date(),
             endDate: new Date(),
@@ -45,8 +45,27 @@ ex:resource1v1
             versionOfPath: DCT.isVersionOf
         }
     })
+    it('generates expected metadata based on the Store.', async () => {
+        const extractor = new Extractor(store);
+        await extractor.create({ldesIdentifier: "http://example.org/ES"})
 
-    it('an extractor as defined by the spec on an LDES with blank node members', async () => {
+        const extractorIdentifier = "http://example.org/extractor"
+        expect(extractor.getMetadata().getQuads(extractorIdentifier, RDF.type, TREE.Collection, null).length).toBe(1)
+        expect(extractor.getMetadata().getQuads(extractorIdentifier, LDES.versionOfPath, extractorOptions.versionOfPath!, null).length).toBe(1)
+        expect(extractor.getMetadata().getQuads(extractorIdentifier, LDES.timestampPath, extractorOptions.timestampPath!, null).length).toBe(1)
+    })
+
+    it('generates expected metadata based on the options.', async () => {
+        const extractor = new Extractor(store);
+        await extractor.create({ldesIdentifier: "http://example.org/ES", timestampPath:"time", versionOfPath:"version"})
+
+        const extractorIdentifier = "http://example.org/extractor"
+        expect(extractor.getMetadata().getQuads(extractorIdentifier, RDF.type, TREE.Collection, null).length).toBe(1)
+        expect(extractor.getMetadata().getQuads(extractorIdentifier, LDES.versionOfPath, "version", null).length).toBe(1)
+        expect(extractor.getMetadata().getQuads(extractorIdentifier, LDES.timestampPath, "time", null).length).toBe(1)
+    })
+
+    it('creates an extraction as defined by the spec on an LDES with blank node members', async () => {
         const ldes = `
     @prefix dct: <http://purl.org/dc/terms/> .
     @prefix ldes: <https://w3id.org/ldes#> .
@@ -77,28 +96,17 @@ ex:resource1v1
         extractorOptions.startDate = new Date("2020-10-06T14:00:00Z")
         const extractorMemberlist = await extractor.create(extractorOptions)
 
-        const extractorMetadata = extractor.getMetadata()
-        const extractorIdentifier = extractorOptions.extractorIdentifier!
-
         expect(extractorMemberlist.length).toBe(0)
-        expect(extractorMetadata.getQuads(extractorIdentifier, RDF.type, LDES.EventStream, null).length).toBe(1)
-        expect(extractorMetadata.getQuads(extractorIdentifier, LDES.versionOfPath, extractorOptions.versionOfPath!, null).length).toBe(1)
-        expect(extractorMetadata.getQuads(extractorIdentifier, LDES.timestampPath, extractorOptions.timestampPath!, null).length).toBe(1)
     })
-    it('an extractor with correct members based on date', async () => {
+
+    it('creates an extraction as defined with correct members based on date', async () => {
         // interval before the first member
         const startDateBefore = new Date('2021-12-15T09:00:00.000Z')
         const endDateBefore = new Date('2021-12-15T09:30:00.000Z')
         extractorOptions.startDate = startDateBefore
         extractorOptions.endDate = endDateBefore
         const extractorMemberlistBefore = await extractorExample.create(extractorOptions)
-        const extractorMetadataStoreBefore = extractorExample.getMetadata()
 
-        const extractorIdentifier = extractorOptions.extractorIdentifier!
-
-        expect(extractorMetadataStoreBefore.getQuads(extractorIdentifier, RDF.type, LDES.EventStream, null).length).toBe(1)
-        expect(extractorMetadataStoreBefore.getQuads(extractorIdentifier, LDES.versionOfPath, extractorOptions.versionOfPath!, null).length).toBe(1)
-        expect(extractorMetadataStoreBefore.getQuads(extractorIdentifier, LDES.timestampPath, extractorOptions.timestampPath!, null).length).toBe(1)
 
         expect(extractorMemberlistBefore.length).toBe(0)
 
@@ -111,11 +119,6 @@ ex:resource1v1
 
         const extractorMemberlistSurroundFirst = await extractorExample.create(extractorOptions)
 
-        const extractorStoreMetadataSurroundFirst = extractorExample.getMetadata()
-
-        expect(extractorStoreMetadataSurroundFirst.getQuads(extractorIdentifier, RDF.type, LDES.EventStream, null).length).toBe(1)
-        expect(extractorStoreMetadataSurroundFirst.getQuads(extractorIdentifier, LDES.versionOfPath, extractorOptions.versionOfPath!, null).length).toBe(1)
-        expect(extractorStoreMetadataSurroundFirst.getQuads(extractorIdentifier, LDES.timestampPath, extractorOptions.timestampPath!, null).length).toBe(1)
 
         expect(extractorMemberlistSurroundFirst.length).toBe(1)
 
@@ -128,11 +131,6 @@ ex:resource1v1
         extractorOptions.endDate = endDateSurroundBoth
 
         const extractorMemberlistSurroundBoth = await extractorExample.create(extractorOptions)
-        const extractorStoreMetadataSurroundBoth = extractorExample.getMetadata()
-
-        expect(extractorStoreMetadataSurroundBoth.getQuads(extractorIdentifier, RDF.type, LDES.EventStream, null).length).toBe(1)
-        expect(extractorStoreMetadataSurroundBoth.getQuads(extractorIdentifier, LDES.versionOfPath, extractorOptions.versionOfPath!, null).length).toBe(1)
-        expect(extractorStoreMetadataSurroundBoth.getQuads(extractorIdentifier, LDES.timestampPath, extractorOptions.timestampPath!, null).length).toBe(1)
 
         expect(extractorMemberlistSurroundBoth.length).toBe(2)
 
@@ -140,13 +138,13 @@ ex:resource1v1
         expect(extractorMemberlistSurroundBoth[1].quads[2]).toStrictEqual(new Quad(new NamedNode('http://example.org/resource1v1'), new NamedNode('http://purl.org/dc/terms/title'), new Literal('"Title has been updated once"'), undefined))
     })
 
-    it('is generated as defined by the spec on an LDES', async () => {
-        await extractorExample.create(extractorOptions)
-        const extractorStore = extractorExample.getMetadata()
-        const extractorIdentifier = extractorOptions.extractorIdentifier!
+    it('creates an extraction as defined by the spec on an LDES with most basic extractorOptions', async () => {
+        const members = await extractorExample.create({ldesIdentifier: "http://example.org/ES"})
 
-        expect(extractorStore.getQuads(extractorIdentifier, RDF.type, LDES.EventStream, null).length).toBe(1)
-        expect(extractorStore.getQuads(extractorIdentifier, LDES.versionOfPath, extractorOptions.versionOfPath!, null).length).toBe(1)
-        expect(extractorStore.getQuads(extractorIdentifier, LDES.timestampPath, extractorOptions.timestampPath!, null).length).toBe(1)
+        expect(members.length).toBe(2)
+    })
+
+    it('can not provide metadata when an extraction is not created yet.', async () => {
+        expect(() => extractorExample.getMetadata()).toThrow(Error)
     })
 })

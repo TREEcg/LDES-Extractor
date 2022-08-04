@@ -6,7 +6,7 @@ import {
     retrieveTimestampProperty,
     retrieveVersionOfProperty
 } from "../../src/util/ExtractorUtil";
-import {DCT, LDES, RDF} from "../../src/util/Vocabularies";
+import {DCT, LDES, RDF, TREE} from "../../src/util/Vocabularies";
 import {DataFactory, Store} from "n3";
 import namedNode = DataFactory.namedNode;
 import quad = DataFactory.quad;
@@ -126,9 +126,9 @@ ex:ES a ldes:EventStream;
             const extractorOptions = extractExtractorOptions(store, ldesIdentifier)
 
             const extractorMetadataStore = createExtractorMetadata(extractorOptions)
-            const extractorIdentifier = `${ldesIdentifier}Extractor`
+            const extractorIdentifier = 'http://example.org/extractor'
 
-            expect(extractorMetadataStore.getQuads(extractorIdentifier, RDF.type, LDES.EventStream, null).length).toBe(1)
+            expect(extractorMetadataStore.getQuads(extractorIdentifier, RDF.type, TREE.Collection, null).length).toBe(1)
             expect(extractorMetadataStore.getQuads(extractorIdentifier, LDES.timestampPath, extractorOptions.timestampPath!, null).length).toBe(1)
             expect(extractorMetadataStore.getQuads(extractorIdentifier, LDES.versionOfPath, extractorOptions.versionOfPath!, null).length).toBe(1)
         })
